@@ -24,12 +24,17 @@ load_dotenv(BASE_DIR / '.env')
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-*yz6do5po*a@x!_%h(ilrie84j(@^=&_zndq9!l58xw^y#ie_9'
+SECRET_KEY = os.environ.get(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-*yz6do5po*a@x!_%h(ilrie84j(@^=&_zndq9!l58xw^y#ie_9',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = ['*']
+# Comma-separated list of allowed hosts, e.g. "api.yourdomain.com,localhost"
+_ALLOWED_HOSTS_ENV = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1')
+ALLOWED_HOSTS = [h.strip() for h in _ALLOWED_HOSTS_ENV.split(',') if h.strip()]
 
 
 # Application definition
@@ -42,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Third party
+    'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -54,6 +60,7 @@ AUTH_USER_MODEL = 'app1.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -174,3 +181,34 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Reverse-proxy / HTTPS settings
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Tell Django that requests forwarded by Caddy are HTTPS.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Comma-separated trusted origins for CSRF, e.g.:
+#   CSRF_TRUSTED_ORIGINS=https://api.yourdomain.com,https://your-frontend.vercel.app
+_CSRF_ORIGINS_ENV = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in _CSRF_ORIGINS_ENV.split(',') if o.strip()]
+
+# ──────────────────────────────────────────────────────────────────────────────
+# CORS (django-cors-headers)
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Comma-separated allowed frontend origins, e.g.:
+#   FRONTEND_ORIGINS=https://your-frontend.vercel.app
+_FRONTEND_ORIGINS_ENV = os.environ.get('FRONTEND_ORIGINS', '')
+CORS_ALLOWED_ORIGINS = [o.strip() for o in _FRONTEND_ORIGINS_ENV.split(',') if o.strip()]
+
+CORS_ALLOW_CREDENTIALS = True
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Secure cookies (only enable when running behind HTTPS)
+# ──────────────────────────────────────────────────────────────────────────────
+
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
