@@ -4,13 +4,32 @@ services:
   web:
     build: .
     container_name: ems_django_web
-    command: python manage.py runserver 0.0.0.0:8000
+    command: gunicorn TeacherManagement.wsgi:application --bind 0.0.0.0:8000 --workers 2
     volumes:
       - .:/app
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     env_file:
       - .env
-    environment:
-      - DJANGO_DEBUG=True
     restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    container_name: ems_caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      - DOMAIN=${DOMAIN}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+    depends_on:
+      - web
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:
