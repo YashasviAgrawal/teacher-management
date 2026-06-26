@@ -58,4 +58,26 @@ urlpatterns = [
 
     # Teacher Dashboard endpoints — /api/v1/teacher-dashboard/
     path('api/v1/', include('app1.teacher_dashboard_urls')),
+
+    # Student Management endpoints — /api/v1/students/
+    path('api/v1/students/', include('student.urls')),
+
+    # Exams & Exam Subjects endpoints — /api/v1/exams/
+    path('api/v1/exams/', include('student.exam_urls')),
+
+    # Exam Subjects marks entry — /api/v1/exam-subjects/
+    path('api/v1/exam-subjects/', include('student.exam_subject_urls')),
+
+    # Exam Marks detail management — /api/v1/marks/
+    path('api/v1/marks/', include('student.mark_detail_urls')),
+
+    # Performance Notes detail management — /api/v1/performance-notes/
+    path('api/v1/performance-notes/', include('student.performance_note_urls')),
+
+    # Success Manager dashboard & at-risk endpoints — /api/v1/success-manager/
+    path('api/v1/success-manager/', include('student.success_manager_urls')),
+
+    # Success Notes detail management — /api/v1/success-notes/
+    path('api/v1/success-notes/', include('student.success_note_urls')),
 ]
+

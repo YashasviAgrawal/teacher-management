@@ -40,12 +40,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Role(models.TextChoices):
         ADMIN = "admin", "Admin"
         TEACHER = "teacher", "Teacher"
+        SUCCESS_MANAGER = "success_manager", "Success Manager"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     full_name = models.CharField(max_length=150)
     email = models.EmailField(max_length=254, blank=True, null=True)
     employee_id = models.CharField(max_length=20, unique=True)
-    role = models.CharField(max_length=10, choices=Role.choices, default=Role.TEACHER)
+    role = models.CharField(max_length=20, choices=Role.choices, default=Role.TEACHER)
     phone = models.CharField(max_length=15, unique=True)
     qualification = models.TextField(blank=True, null=True)
     profile_photo = models.TextField(blank=True, null=True)  # URL or file path

@@ -44,3 +44,17 @@ class IsOwnerOrAdmin(BasePermission):
             return obj.user == request.user
         # If the object IS the user
         return obj == request.user
+
+
+class IsSuccessManager(BasePermission):
+    """
+    Allows access only to users with role = 'success_manager'.
+    """
+
+    def has_permission(self, request, view):
+        return (
+            request.user
+            and request.user.is_authenticated
+            and request.user.role == "success_manager"
+        )
+
